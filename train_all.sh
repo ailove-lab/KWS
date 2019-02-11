@@ -82,5 +82,8 @@ function lstm {
     --train_dir $out/training
 }
 
-gru
+lstm
+crnn
+ds_cnn
+#gru
  
