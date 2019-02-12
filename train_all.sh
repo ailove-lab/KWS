@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source config.sh
+
 function ds_cnn {
     model=ds_cnn
     out=train/$model
@@ -8,7 +9,7 @@ function ds_cnn {
     --model_architecture $model                 \
     --wanted_words=$words                       \
     --data_dir=$data_dir                        \
-    --data_url=                                 \
+    --data_url=$data_url                        \
     --unknown_percentage=50                     \
     --model_size_info 6 276 10 4 2              \
                       1 276  3 3 2              \
@@ -32,7 +33,7 @@ function crnn {
     --model_architecture $model                 \
     --wanted_words=$words                       \
     --data_dir=$data_dir                        \
-    --data_url=                                 \
+    --data_url=$data_url                        \
     --unknown_percentage=50                     \
     --model_size_info 100 10 4 2 1 2 136 188    \
     --dct_coefficient_count 10                  \
@@ -51,7 +52,7 @@ function gru {
     --model_architecture $model                 \
     --wanted_words=$words                       \
     --data_dir=$data_dir                        \
-    --data_url=                                 \
+    --data_url=$data_url                        \
     --unknown_percentage=50                     \
     --model_size_info 1 400                     \
     --dct_coefficient_count 10                  \
@@ -70,7 +71,7 @@ function lstm {
     --model_architecture=$model                 \
     --wanted_words=$words                       \
     --data_dir=$data_dir                        \
-    --data_url=                                 \
+    --data_url=$data_url                        \
     --unknown_percentage=50                     \
     --model_size_info 188 500                   \
     --dct_coefficient_count 10                  \
@@ -82,8 +83,8 @@ function lstm {
     --train_dir $out/training
 }
 
-lstm
-crnn
-ds_cnn
-#gru
+# lstm
+# crnn
+# ds_cnn
+gru
  
