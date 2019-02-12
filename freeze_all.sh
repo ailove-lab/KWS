@@ -92,4 +92,7 @@ function lstm {
     --output_file=train/$model/frozen.pb
 }
 
-gru
+ds_cnn
+lstm
+crnn
+#gru
