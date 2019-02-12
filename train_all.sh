@@ -40,7 +40,7 @@ function crnn {
     --window_size_ms 40                         \
     --window_stride_ms 20                       \
     --learning_rate 0.0005,0.0001,0.00002       \
-    --how_many_training_steps 10000,10000,10000 \
+    --how_many_training_steps 1000,1000,1000 \
     --summaries_dir $out/retrain_logs           \
     --train_dir $out/training
 }
@@ -59,7 +59,7 @@ function gru {
     --window_size_ms 40                         \
     --window_stride_ms 20                       \
     --learning_rate 0.0005,0.0001,0.00002       \
-    --how_many_training_steps 10000,10000,10000 \
+    --how_many_training_steps 1000,1000,1000    \
     --summaries_dir $out/retrain_logs           \
     --train_dir $out/training
 }
@@ -78,13 +78,13 @@ function lstm {
     --window_size_ms 40                         \
     --window_stride_ms 20                       \
     --learning_rate 0.0005,0.0001,0.00002       \
-    --how_many_training_steps 10000,10000,10000 \
+    --how_many_training_steps 1000,1000,1000 \
     --summaries_dir $out/retrain_logs           \
     --train_dir $out/training
 }
 
-# lstm
-# crnn
-# ds_cnn
-gru
+lstm
+crnn
+ds_cnn
+# gru
  

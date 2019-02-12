@@ -70,7 +70,7 @@ function lstm {
     ckpt=${ckpt%.*}
     echo $ckpt
 
-    python train.py                             \
+    python freeze.py                            \
     --model_architecture=$model                 \
     --wanted_words=$words                       \
     --model_size_info 188 500                   \
