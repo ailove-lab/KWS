@@ -2,17 +2,6 @@
 
 source config.sh
 
-# python freeze.py           \
-# --model_architecture=gru   \
-# --model_size_info 1 154    \
-# --dct_coefficient_count=10 \
-# --wanted_words=$words      \
-# --clip_duration_ms=1000    \
-# --sample_rate=16000        \
-# --window_size_ms=40        \
-# --window_stride_ms=40      \
-# --checkpoint=$ckpt         \
-
 function ds_cnn {
     model=ds_cnn
     ckpt=`ls -t train/$model/training/best/*.ckpt-*.meta | head -1`
@@ -93,6 +82,6 @@ function lstm {
 }
 
 ds_cnn
-lstm
+# lstm
 crnn
-#gru
+gru
