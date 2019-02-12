@@ -82,6 +82,6 @@ function lstm {
 }
 
 ds_cnn
-# lstm
+lstm
 crnn
 gru
