@@ -2,3 +2,9 @@
 words='вредно,нельзя,исключено,не_нужно,не_стоит,разве_можно,запрещено,не_делай,не_надо,не_следует,плохая_примета'
 data_dir=data/
 data_url=http://vs43.ailove.ru:4545/train.tar.gz
+steps=500,500,500
+rate=0.0005,0.0001,0.00002
+unknown_percentage=50
+dct_coefficient_count=10
+window_size_ms=40  
+window_stride_ms=20
