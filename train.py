@@ -96,7 +96,7 @@ def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
 
   # Start a new TensorFlow session.
-  sess = tf.InteractiveSession(config=tf.ConfigProto(log_device_placement=True))
+  sess = tf.InteractiveSession()
 
   # Begin by making sure we have the training data we need. If you already have
   # training data of your own, use `--data_url= ` on the command line to avoid
