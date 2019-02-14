@@ -20,9 +20,9 @@ function freeze {
     echo $ckpt
 
     python freeze.py                               \
-    --model_architecture=$1                        \
+    --model_architecture $1                        \
+    --model_size_info $2                           \
     --wanted_words=$words                          \
-    --model_size_info=$2                           \
     --dct_coefficient_count=$dct_coefficient_count \
     --clip_duration_ms=$clip_duration_ms           \
     --window_size_ms=$window_size_ms               \
@@ -35,11 +35,11 @@ function train {
     out=$train_dir/$1
     python train.py                                \
     --model_architecture $1                        \
+    --model_size_info $2                           \
     --wanted_words=$words                          \
     --data_dir=$data_dir                           \
     --data_url=$data_url                           \
     --unknown_percentage=$unknown_percentage       \
-    --model_size_info=$2                           \
     --dct_coefficient_count=$dct_coefficient_count \
     --window_size_ms=$window_size_ms               \
     --window_stride_ms=$window_stride_ms           \
