@@ -1,6 +1,6 @@
 #!/bin/bash
 
-data_url=http://vs43.ailove.ru:4545/train.tar.gz
+data_url=https://vs43.ailove.ru:4000/train.tar.gz
 words='вредно,нельзя,исключено,не_нужно,не_стоит,разве_можно,запрещено,не_делай,не_надо,не_следует,плохая_примета'
 data_dir=data
 train_dir=train
@@ -51,12 +51,7 @@ function train {
     freeze $1 $2
 }
 
-train ds_cnn "6 276 10 4 2  \
-              1 276  3 3 2  \
-              2 276  3 3 1  \
-              1 276  3 3 1  \
-              1 276  3 3 1  \
-              1 276  3 3 1 1"
-train lstm "188 500"
-train crnn "100 10 4 2 1 2 136 188"
+#train ds_cnn "6 276 10 4 2 1 276 3 3 2 2 276 3 3 1 1 276 3 3 1 1 276 3 3 1 1 276 3 3 1 1"
+#train lstm "188 500"
+#train crnn "100 10 4 2 1 2 136 188"
 train gru  "1 400" 
