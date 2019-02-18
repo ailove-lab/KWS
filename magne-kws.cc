@@ -1,67 +1,3 @@
-/* Copyright 2017 The TensorFlow Authors. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
-/*
-
-Tool to create accuracy statistics from running an audio recognition model on a
-continuous stream of samples.
-
-This is designed to be an environment for running experiments on new models and
-settings to understand the effects they will have in a real application. You
-need to supply it with a long audio file containing sounds you want to recognize
-and a text file listing the labels of each sound along with the time they occur.
-With this information, and a frozen model, the tool will process the audio
-stream, apply the model, and keep track of how many mistakes and successes the
-model achieved.
-
-The matched percentage is the number of sounds that were correctly classified,
-as a percentage of the total number of sounds listed in the ground truth file.
-A correct classification is when the right label is chosen within a short time
-of the expected ground truth, where the time tolerance is controlled by the
-'time_tolerance_ms' command line flag.
-
-The wrong percentage is how many sounds triggered a detection (the classifier
-figured out it wasn't silence or background noise), but the detected class was
-wrong. This is also a percentage of the total number of ground truth sounds.
-
-The false positive percentage is how many sounds were detected when there was
-only silence or background noise. This is also expressed as a percentage of the
-total number of ground truth sounds, though since it can be large it may go
-above 100%.
-
-The easiest way to get an audio file and labels to test with is by using the
-'generate_streaming_test_wav' script. This will synthesize a test file with
-randomly placed sounds and background noise, and output a text file with the
-ground truth.
-
-If you want to test natural data, you need to use a .wav with the same sample
-rate as your model (often 16,000 samples per second), and note down where the
-sounds occur in time. Save this information out as a comma-separated text file,
-where the first column is the label and the second is the time in seconds from
-the start of the file that it occurs.
-
-Here's an example of how to run the tool:
-
-bazel run tensorflow/examples/speech_commands:test_streaming_accuracy -- \
---wav=/tmp/streaming_test_bg.wav \
---graph=/tmp/conv_frozen.pb \
---labels=/tmp/speech_commands_train/conv_labels.txt \
---ground_truth=/tmp/streaming_test_labels.txt --verbose \
---clip_duration_ms=1000 --detection_threshold=0.70 --average_window_ms=500 \
---suppression_ms=500 --time_tolerance_ms=1500
-
- */
 
 #include <fstream>
 #include <iomanip>
@@ -79,7 +15,6 @@ bazel run tensorflow/examples/speech_commands:test_streaming_accuracy -- \
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/util/command_line_flags.h"
 
-#include "accuracy_utils.h"
 #include "recognize_commands.h"
 
 // These are all common classes it's handy to reference with no namespace.
@@ -132,27 +67,25 @@ Status ReadLabelsFile(const string& file_name, std::vector<string>* result) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  string wav = "";
-  string graph = "";
+  string wav    = "";
+  string graph  = "";
   string labels = "";
-  string ground_truth = "";
-  string input_data_name = "decoded_sample_data:0";
-  string input_rate_name = "decoded_sample_data:1";
-  string output_name = "labels_softmax";
-  int32 clip_duration_ms = 1000;
-  int32 clip_stride_ms = 30;
+
+  string input_data_name  = "decoded_sample_data:0";
+  string input_rate_name  = "decoded_sample_data:1";
+  string output_name      = "labels_softmax";
+  int32 clip_duration_ms  = 1000;
+  int32 clip_stride_ms    = 30;
   int32 average_window_ms = 500;
   int32 time_tolerance_ms = 750;
-  int32 suppression_ms = 1500;
+  int32 suppression_ms    = 1500;
   float detection_threshold = 0.7f;
-  bool verbose = false;
+
   std::vector<Flag> flag_list = {
       Flag("wav", &wav, "audio file to be identified"),
       Flag("graph", &graph, "model to be executed"),
       Flag("labels", &labels, "path to file containing labels"),
-      Flag("ground_truth", &ground_truth,
-           "path to file containing correct times and labels of words in the "
-           "audio as <word>,<timestamp in ms> lines"),
+      
       Flag("input_data_name", &input_data_name,
            "name of input data node in model"),
       Flag("input_rate_name", &input_rate_name,
@@ -169,7 +102,6 @@ int main(int argc, char* argv[]) {
       Flag("clip_stride_ms", &clip_stride_ms, "how often to run recognition"),
       Flag("detection_threshold", &detection_threshold,
            "what score is required to trigger detection of a word"),
-      Flag("verbose", &verbose, "whether to log extra debugging information"),
   };
   string usage = tensorflow::Flags::Usage(argv[0], flag_list);
   const bool parse_result = tensorflow::Flags::Parse(&argc, argv, flag_list);
@@ -197,14 +129,6 @@ int main(int argc, char* argv[]) {
   Status read_labels_status = ReadLabelsFile(labels, &labels_list);
   if (!read_labels_status.ok()) {
     LOG(ERROR) << read_labels_status;
-    return -1;
-  }
-
-  std::vector<std::pair<string, tensorflow::int64>> ground_truth_list;
-  Status read_ground_truth_status =
-      tensorflow::ReadGroundTruthFile(ground_truth, &ground_truth_list);
-  if (!read_ground_truth_status.ok()) {
-    LOG(ERROR) << read_ground_truth_status;
     return -1;
   }
 
@@ -243,7 +167,6 @@ int main(int argc, char* argv[]) {
       labels_list, average_window_ms, detection_threshold, suppression_ms);
 
   std::vector<std::pair<string, int64>> all_found_words;
-  tensorflow::StreamingAccuracyStats previous_stats;
 
   const int64 audio_data_end = (sample_count - clip_duration_ms);
   for (int64 audio_data_offset = 0; audio_data_offset < audio_data_end;
@@ -273,41 +196,11 @@ int main(int argc, char* argv[]) {
       return -1;
     }
 
-    if (is_new_command && (found_command != "_silence_")) {
+    //if (is_new_command && (found_command != "_silence_")) {
       all_found_words.push_back({found_command, current_time_ms});
-      if (verbose) {
-        tensorflow::StreamingAccuracyStats stats;
-        tensorflow::CalculateAccuracyStats(ground_truth_list, all_found_words,
-                                           current_time_ms, time_tolerance_ms,
-                                           &stats);
-        int32 false_positive_delta = stats.how_many_false_positives -
-                                     previous_stats.how_many_false_positives;
-        int32 correct_delta = stats.how_many_correct_words -
-                              previous_stats.how_many_correct_words;
-        int32 wrong_delta =
-            stats.how_many_wrong_words - previous_stats.how_many_wrong_words;
-        string recognition_state;
-        if (false_positive_delta == 1) {
-          recognition_state = " (False Positive)";
-        } else if (correct_delta == 1) {
-          recognition_state = " (Correct)";
-        } else if (wrong_delta == 1) {
-          recognition_state = " (Wrong)";
-        } else {
-          LOG(ERROR) << "Unexpected state in statistics";
-        }
-        LOG(INFO) << current_time_ms << "ms: " << found_command << ": " << score
-                  << recognition_state;
-        previous_stats = stats;
-        tensorflow::PrintAccuracyStats(stats);
-      }
-    }
+      LOG(INFO) << current_time_ms << "ms: " << found_command << ": " << score;
+    //}
   }
-
-  tensorflow::StreamingAccuracyStats stats;
-  tensorflow::CalculateAccuracyStats(ground_truth_list, all_found_words, -1,
-                                     time_tolerance_ms, &stats);
-  tensorflow::PrintAccuracyStats(stats);
 
   return 0;
 }
