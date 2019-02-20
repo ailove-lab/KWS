@@ -4,7 +4,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include <dirent.h>
+#include <inttypes.h>
 
 #include "tensorflow/core/framework/tensor.h"
 #include "tensorflow/core/lib/io/path.h"
@@ -17,9 +17,16 @@
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/util/command_line_flags.h"
 
-#include "recognize_commands.h"
+#define NRM  "\x1B[0m"
+#define RED  "\x1B[31m"
+#define GRN  "\x1B[32m"
+#define YEL  "\x1B[33m"
+#define BLU  "\x1B[34m"
+#define MAG  "\x1B[35m"
+#define CYN  "\x1B[36m"
+#define WHT  "\x1B[37m"
 
-// These are all common classes it's handy to reference with no namespace.
+ // These are all common classes it's handy to reference with no namespace.
 using tensorflow::Flag;
 using tensorflow::Status;
 using tensorflow::Tensor;
@@ -28,6 +35,19 @@ using tensorflow::int64;
 using tensorflow::string;
 using tensorflow::uint16;
 using tensorflow::uint32;
+
+string wav    = "";
+string graph  = "";
+string labels = "";
+
+string input_data_name  = "decoded_sample_data:0";
+string input_rate_name  = "decoded_sample_data:1";
+string output_name      = "labels_softmax";
+int32 clip_duration_ms  = 1000;
+int32 clip_stride_ms    =   20;
+int32 average_window_ms =  500;
+int32 suppression_ms    =  100;
+float detection_threshold = 0.7f;
 
 namespace {
 
@@ -68,28 +88,17 @@ Status ReadLabelsFile(const string& file_name, std::vector<string>* result) {
 
 }  // namespace
 
-string wav    = "";
-string graph  = "";
-string labels = "";
-
-string input_data_name  = "decoded_sample_data:0";
-string input_rate_name  = "decoded_sample_data:1";
-string output_name      = "labels_softmax";
-int32 clip_duration_ms  = 1000;
-int32 clip_stride_ms    =   20;
-int32 average_window_ms =  500;
-int32 suppression_ms    = 1500;
-float detection_threshold = 0.7f;
 
 std::vector<string> labels_list;
 std::unique_ptr<tensorflow::Session> session;
   
-int apply_model(char* wav_file) {
+int apply_model() {
 
-  string path=wav_file;
+
+  // decode wav
   string wav_string;
   Status read_wav_status = tensorflow::ReadFileToString(
-      tensorflow::Env::Default(), wav_file, &wav_string);
+      tensorflow::Env::Default(), wav, &wav_string);
   if (!read_wav_status.ok()) {
     LOG(ERROR) << read_wav_status;
     return -1;
@@ -110,20 +119,21 @@ int apply_model(char* wav_file) {
     return -1;
   }
 
+  printf("%s\n", wav.c_str());
+  printf("\tsamples:  %d\n", sample_count); 
+  printf("\trate:     %d\n", sample_rate);
+  printf("\tchannels: %d\n", channel_count);
+
+  // setup run
   const int64 clip_duration_samples = (clip_duration_ms * sample_rate) / 1000;
-  const int64 clip_stride_samples = (clip_stride_ms * sample_rate) / 1000;
+  const int64 clip_stride_samples   = (clip_stride_ms   * sample_rate) / 1000;
   Tensor audio_data_tensor(tensorflow::DT_FLOAT,
                            tensorflow::TensorShape({clip_duration_samples, 1}));
 
   Tensor sample_rate_tensor(tensorflow::DT_INT32, tensorflow::TensorShape({}));
   sample_rate_tensor.scalar<int32>()() = sample_rate;
 
-  tensorflow::RecognizeCommands recognize_commands(
-      labels_list, average_window_ms, detection_threshold, suppression_ms);
-
-  std::vector<std::pair<string, int64>> all_found_words;
-
-  const int64 audio_data_end = (sample_count - clip_duration_ms);
+  const int64 audio_data_end = (sample_count - clip_duration_samples);
   for (int64 audio_data_offset = 0; audio_data_offset < audio_data_end;
        audio_data_offset += clip_stride_samples) {
     const float* input_start = &(audio_data[audio_data_offset]);
@@ -134,28 +144,38 @@ int apply_model(char* wav_file) {
     std::vector<Tensor> outputs;
     Status run_status = session->Run({{input_data_name, audio_data_tensor},
                                       {input_rate_name, sample_rate_tensor}},
-                                     {output_name}, {}, &outputs);
+                                      {output_name}, {}, &outputs);
     if (!run_status.ok()) {
       LOG(ERROR) << "Running model failed: " << run_status;
       return -1;
     }
 
     const int64 current_time_ms = (audio_data_offset * 1000) / sample_rate;
-    string found_command;
-    float score;
-    bool is_new_command;
-    Status recognize_status = recognize_commands.ProcessLatestResults(
-        outputs[0], current_time_ms, &found_command, &score, &is_new_command);
-    if (!recognize_status.ok()) {
-      LOG(ERROR) << "Recognition processing failed: " << recognize_status;
-      return -1;
+    auto results = outputs[0].flat<float>();
+    printf("%*d\t", 5, audio_data_offset);
+    int id = 0;
+    for (int i = 0; i < results.size(); ++i) {
+        int r = (int)(results(i)*100.0);
+        if     (30 < r && r < 50) printf(CYN "%*d" NRM, 3, r);
+        else if(50 < r && r < 70) printf(YEL "%*d" NRM, 3, r);
+        else if(70 <r           ) printf(GRN "%*d" NRM, 3, r);
+        else                      printf(BLU "%*d" NRM, 3, r);
+        if(r>70) id = i;
     }
+    printf(" %s\n", labels_list[id].c_str());
+    
+    // float score;
+    // bool is_new_command;
+    // Status recognize_status = recognize_commands.ProcessLatestResults(
+    //     outputs[0], current_time_ms, &found_command, &score, &is_new_command);
+    // if (!recognize_status.ok()) {
+    //   LOG(ERROR) << "Recognition processing failed: " << recognize_status;
+    //   return -1;
+    // }
 
     // if (is_new_command && (found_command != "_silence_")) {
-    if (is_new_command)  {
-      all_found_words.push_back({found_command, current_time_ms});
-      printf("\t\t%s %f\n", found_command.c_str(), score);
-    }
+    // all_found_words.push_back({found_command, current_time_ms});
+    // printf("%" PRId64 " sample %" PRId64 "ms:\t%s %f\n", audio_data_offset, current_time_ms, found_command.c_str(), score);
   }
   return 0;
 }
@@ -203,40 +223,6 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  // iterate throught validation folder
-  DIR* dir_f;
-  DIR* dir_c;
-  struct dirent* ent_f;
-  struct dirent* ent_c;
-  const char* folder = wav.c_str();
-  if ((dir_f = opendir(folder)) != NULL) {
-      while ((ent_f = readdir(dir_f)) != NULL) {
-          char* category = ent_f->d_name;
-          if(category[0] != '.') {
-              printf ("%s\n", category);
-              char category_f[256];
-              sprintf(category_f, "%s/%s", folder, category); 
-              if ((dir_c = opendir(category_f)) != NULL) {
-                  while ((ent_c = readdir(dir_c)) != NULL) {
-                      char* wav_file = ent_c->d_name;
-                      if(wav_file[0] != '.') {
-                          printf ("\t%s\n", wav_file);
-                          char path[256];
-                          sprintf(path, "%s/%s/%s", folder, category, wav_file);
-                          apply_model(path);
-                      }
-                  }
-                  closedir(dir_c);
-              }
-          }
-      }
-      closedir (dir_f);
-  } else {
-      /* could not open directory */
-      perror ("");
-      return EXIT_FAILURE;
-  }
+  return apply_model();
 
-  
-  return 0;
 }

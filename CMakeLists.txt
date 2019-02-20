@@ -15,14 +15,23 @@ TensorFlow_REQUIRE_SOURCE()
 
 include_directories($ENV{TENSORFLOW_BUILD_DIR}/includes/)
 
-add_executable (magne-kws
-    magne-kws.cc
-    recognize_commands.cc
-)
-target_include_directories(magne-kws PRIVATE TensorFlow_DEP)
-target_link_libraries(magne-kws PRIVATE TensorFlow_DEP)
+# add_executable(
+#     magne-kws
+#     magne-kws.cc
+#     recognize_commands.cc
+# )
+# target_include_directories(magne-kws PRIVATE TensorFlow_DEP)
+# target_link_libraries(magne-kws PRIVATE TensorFlow_DEP)
 
-add_executable (label_wav
+add_executable (
+    label_phrase
+    label_phrase.cc
+)
+target_include_directories(label_phrase PRIVATE TensorFlow_DEP)
+target_link_libraries(label_phrase PRIVATE TensorFlow_DEP)
+
+add_executable (
+    label_wav
     label_wav.cc
 )
 target_include_directories(label_wav PRIVATE TensorFlow_DEP)
