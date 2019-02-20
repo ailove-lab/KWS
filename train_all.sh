@@ -2,7 +2,7 @@
 
 data_url=https://vs43.ailove.ru:4000/train.tar.gz
 words='вредно,нельзя,исключено,не_нужно,не_стоит,разве_можно,запрещено,не_делай,не_надо,не_следует,плохая_примета'
-data_dir=data
+data_dir=data/train
 train_dir=train
 steps=500,500,500
 rate=0.0005,0.0001,0.00002
@@ -10,7 +10,7 @@ unknown_percentage=80
 dct_coefficient_count=10
 window_size_ms=40  
 window_stride_ms=20
-clip_duration_ms=1000
+clip_duration_ms=500
 
 function freeze {
     
@@ -51,8 +51,9 @@ function train {
     freeze $1 "$2"
 }
 
-#train ds_cnn "6 276 10 4 2 1 276 3 3 2 2 276 3 3 1 1 276 3 3 1 1 276 3 3 1 1 276 3 3 1 1"
-#train lstm "188 500"
-#train crnn "100 10 4 2 1 2 136 188"
-train gru "1 400"
-# freeze gru "1 400"
+# train ds_cnn "6 276 10 4 2 1 276 3 3 2 2 276 3 3 1 1 276 3 3 1 1 276 3 3 1 1 276 3 3 1 1"
+# train lstm "188 500"
+# train crnn "100 10 4 2 1 2 136 188"
+# train gru "1 400"
+train cnn "60 10 4 1 1 76 10 4 2 1 58 128"
+train dnn "436 436 436"

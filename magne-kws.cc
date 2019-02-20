@@ -196,10 +196,10 @@ int main(int argc, char* argv[]) {
       return -1;
     }
 
-    //if (is_new_command && (found_command != "_silence_")) {
+    if (is_new_command && (found_command != "_silence_")) {
       all_found_words.push_back({found_command, current_time_ms});
       LOG(INFO) << current_time_ms << "ms: " << found_command << ": " << score;
-    //}
+    }
   }
 
   return 0;
