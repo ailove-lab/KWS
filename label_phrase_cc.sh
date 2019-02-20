@@ -1,5 +1,5 @@
 #!/bin/bash
-./build/label_phrase               \
---wav=$1                           \
---graph=pretrained/gru_frozen.pb   \
---labels=pretrained/gru_labels.txt
+./build/label_phrase                         \
+--graph=train/$1/frozen.pb                   \
+--labels=train/${1}/training/${1}_labels.txt \
+--wav=$2

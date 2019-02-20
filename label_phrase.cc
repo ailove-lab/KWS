@@ -43,10 +43,8 @@ string labels = "";
 string input_data_name  = "decoded_sample_data:0";
 string input_rate_name  = "decoded_sample_data:1";
 string output_name      = "labels_softmax";
-int32 clip_duration_ms  = 1000;
+int32 clip_duration_ms  =  500;
 int32 clip_stride_ms    =   20;
-int32 average_window_ms =  500;
-int32 suppression_ms    =  100;
 float detection_threshold = 0.7f;
 
 namespace {
@@ -154,13 +152,14 @@ int apply_model() {
     auto results = outputs[0].flat<float>();
     printf("%*d\t", 5, audio_data_offset);
     int id = 0;
+    int r_max=0;
     for (int i = 0; i < results.size(); ++i) {
         int r = (int)(results(i)*100.0);
         if     (30 < r && r < 50) printf(CYN "%*d" NRM, 3, r);
         else if(50 < r && r < 70) printf(YEL "%*d" NRM, 3, r);
         else if(70 <r           ) printf(GRN "%*d" NRM, 3, r);
         else                      printf(BLU "%*d" NRM, 3, r);
-        if(r>70) id = i;
+        if(r>r_max) { id = i; r_max = r; }
     }
     printf(" %s\n", labels_list[id].c_str());
     
@@ -191,8 +190,6 @@ int main(int argc, char* argv[]) {
       Flag("input_rate_name"    , &input_rate_name    , "name of input sample rate node in model"              ),
       Flag("output_name"        , &output_name        , "name of output node in model"                         ),
       Flag("clip_duration_ms"   , &clip_duration_ms   , "length of recognition window"                         ),
-      Flag("average_window_ms"  , &average_window_ms  , "length of window to smooth results over"              ),
-      Flag("suppression_ms"     , &suppression_ms     , "how long to ignore others for after a recognition"    ),
       Flag("clip_stride_ms"     , &clip_stride_ms     , "how often to run recognition"                         ),
       Flag("detection_threshold", &detection_threshold, "what score is required to trigger detection of a word"),
   };
