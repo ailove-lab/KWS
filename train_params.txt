@@ -1,0 +1,132 @@
+
+--data_url
+      type=str
+      default='http://download.tensorflow.org/data/speech_commands_v0.02.tar.gz'
+      Location of speech training data archive on the web.
+
+--data_dir
+      type=str
+      default='/tmp/speech_dataset/'
+      Where to download the speech training data to.
+
+--background_volume
+      type=float
+      default=0.1
+      How loud the background noise should be, between 0 and 1.
+
+--background_frequency
+      type=float
+      default=0.8
+      How many of the training samples have background noise mixed in.
+
+--silence_percentage
+      type=float
+      default=10.0
+      How much of the training data should be silence.
+
+--unknown_percentage
+      type=float
+      default=10.0
+      How much of the training data should be unknown words.
+
+--time_shift_ms
+      type=float
+      default=100.0
+      Range to randomly shift the training audio by in time.
+
+--testing_percentage
+      type=int
+      default=10
+      What percentage of wavs to use as a test set.
+
+--validation_percentage
+      type=int
+      default=10
+      What percentage of wavs to use as a validation set.
+
+--sample_rate
+      type=int
+      default=16000
+      Expected sample rate of the wavs'
+
+--clip_duration_ms
+      type=int
+      default=1000
+      Expected duration in milliseconds of the wavs'
+
+--window_size_ms
+      type=float
+      default=30.0
+      How long each spectrogram timeslice is'
+
+--window_stride_ms
+      type=float
+      default=10.0
+      How long each spectrogram timeslice is'
+
+--dct_coefficient_count
+      type=int
+      default=40
+      How many bins to use for the MFCC fingerprint'
+
+--how_many_training_steps
+      type=str
+      default='15000,3000'
+      How many training loops to run'
+
+--eval_step_interval
+      type=int
+      default=400
+      How often to evaluate the training results.
+
+--learning_rate
+      type=str
+      default='0.001,0.0001'
+      How large a learning rate to use when training.
+
+--batch_size
+      type=int
+      default=100
+      How many items to train with at once'
+
+--summaries_dir
+      type=str
+      default='/tmp/retrain_logs'
+      Where to save summary logs for TensorBoard.
+
+--wanted_words
+      type=str
+      default='yes,no,up,down,left,right,on,off,stop,go'
+      Words to use (others will be added to an unknown label)
+
+--train_dir
+      type=str
+      default='/tmp/speech_commands_train'
+      Directory to write event logs and checkpoint.
+
+--save_step_interval
+      type=int
+      default=100
+      Save model checkpoint every save_steps.
+
+--start_checkpoint
+      type=str
+      default=''
+      If specified, restore this pretrained model before any training.
+
+--model_architecture
+      type=str
+      default='dnn'
+      What model architecture to use
+
+--model_size_info
+      type=int
+      nargs="+",
+      default=[128,128,128]
+      Model dimensions - different for various models
+
+--check_nans
+      type=bool
+      default=False
+      Whether to check for invalid numbers during processing
+

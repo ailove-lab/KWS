@@ -31,6 +31,13 @@ target_include_directories(label_phrase PRIVATE TensorFlow_DEP)
 target_link_libraries(label_phrase PRIVATE TensorFlow_DEP)
 
 add_executable (
+    validate
+    validate.cc
+)
+target_include_directories(validate PRIVATE TensorFlow_DEP)
+target_link_libraries(validate PRIVATE TensorFlow_DEP)
+
+add_executable (
     label_wav
     label_wav.cc
 )
