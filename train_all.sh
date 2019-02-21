@@ -10,8 +10,8 @@ unknown_percentage=80
 dct_coefficient_count=10
 window_size_ms=40  
 window_stride_ms=20
-clip_duration_ms=1000
-clip_stride_ms=30
+clip_duration_ms=500
+clip_stride_ms=20
 sample_rate=16000
 
 function freeze {
