@@ -56,8 +56,8 @@ namespace {
 
 // Reads a model graph definition from disk, and creates a session object you
 // can use to run it.
-Status LoadGraph(const string &graph_file_name,
-                 std::unique_ptr<tensorflow::Session> *session) {
+Status LoadGraph(const string& graph_file_name,
+                 std::unique_ptr<tensorflow::Session>* session) {
     tensorflow::GraphDef graph_def;
     Status load_graph_status = ReadBinaryProto(tensorflow::Env::Default(),
                                                graph_file_name, &graph_def);
@@ -75,7 +75,7 @@ Status LoadGraph(const string &graph_file_name,
 
 // Takes a file name, and loads a list of labels from it, one per line, and
 // returns a vector of the strings.
-Status ReadLabelsFile(const string &file_name, std::vector<string> *result) {
+Status ReadLabelsFile(const string& file_name, std::vector<string>* result) {
     std::ifstream file(file_name);
     if (!file) {
         return tensorflow::errors::NotFound("Labels file '", file_name,
@@ -141,8 +141,8 @@ map<string, int> apply_model() {
     const int64 audio_data_end = (sample_count - clip_duration_samples);
     for (int64 audio_data_offset = 0; audio_data_offset < audio_data_end;
          audio_data_offset += clip_stride_samples) {
-        const float *input_start = &(audio_data[audio_data_offset]);
-        const float *input_end = input_start + clip_duration_samples;
+        const float* input_start = &(audio_data[audio_data_offset]);
+        const float* input_end = input_start + clip_duration_samples;
         std::copy(input_start, input_end,
                   audio_data_tensor.flat<float>().data());
 
@@ -174,8 +174,10 @@ map<string, int> apply_model() {
 }
 
 int run_validation() {
+
+    std::cout << "Модель\tСлово\tИП ко-во\tИП сумма\tЛП ко-во\tЛП сумма\n";
     char buf[256];
-    for (string &model : models) {
+    for (string& model : models) {
 
         sprintf(buf, "train/%1$s/%1$s_frozen.pb", model.c_str());
         graph = buf;
@@ -193,36 +195,50 @@ int run_validation() {
             return -1;
         }
 
-        for (string &word : words) {
-            tuple<int,int> stat;
-            DIR *dir;
-            struct dirent *ent;
+        for (string& word : words) {
+            tuple<int, int, int, int, int> stat;
+            DIR* dir;
+            struct dirent* ent;
             sprintf(buf, "data/validation/%s/", word.c_str());
             if ((dir = opendir(buf)) != NULL) {
                 while ((ent = readdir(dir)) != NULL) {
                     if (ent->d_name[0] != '.') {
-                        printf("\t%s\n", ent->d_name);
                         sprintf(buf, "data/validation/%s/%s", word.c_str(),
                                 ent->d_name);
                         wav = buf;
                         map<string, int> res = apply_model();
-                        if (res.find(word) != res.end())
+                        if (res.find(word) != res.end()) {
                             get<0>(stat)++; // found word
-                        else
-                            get<1>(stat)++; // err
+                            get<1>(stat) += res[word];
+                        } else {
+                            get<2>(stat)++; // err
+                        }
+
+                        // count false positive
+                        for (auto const& w : words) {
+                            if (w != word) {
+                                if (res.find(w) != res.end()) {
+                                    get<3>(stat)++;
+                                    get<4>(stat) += res[w];
+                                }
+                            }
+                        }
                     }
                 }
                 closedir(dir);
             }
-            
-            std::cout << model << "\t" << word << "\t" << get<0>(stat) << get<1>(stat) << "\n";
+
+            std::cout << model << "\t" << word << "\t" << get<0>(stat) << "\t"
+                      << get<1>(stat) << "\t" << get<2>(stat) << "\t"
+                      << get<3>(stat) << "\t" << get<4>(stat);
+            std::cout << "\n" << std::flush;
         }
     }
 
     return 0;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
 
     std::vector<Flag> flag_list = {
         Flag("input_data_name", &input_data_name,
