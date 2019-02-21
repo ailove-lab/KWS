@@ -15,12 +15,10 @@ clip_stride_ms=20
 sample_rate=16000
 
 function freeze {
-    
     # get latest weights
     ckpt=`ls -t $train_dir/$1/training/best/*.ckpt-*.meta | head -1`
     ckpt=${ckpt%.*}
     echo $ckpt
-
     python freeze.py                               \
     --model_architecture $1                        \
     --model_size_info $2                           \
@@ -32,7 +30,7 @@ function freeze {
     --window_stride_ms=$window_stride_ms           \
     --sample_rate=$sample_rate                     \
     --checkpoint=$ckpt                             \
-    --output_file=$train_dir/$1/frozen.pb
+    --output_file=$train_dir/$1/${1}_frozen.pb
 }
 
 function train {
