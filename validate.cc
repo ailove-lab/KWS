@@ -42,7 +42,7 @@ string input_rate_name = "decoded_sample_data:1";
 string output_name = "labels_softmax";
 int32 clip_duration_ms = 500;
 int32 clip_stride_ms = 20;
-float detection_threshold = 0.7f;
+int detection_threshold = 70;
 
 static std::vector<string> words = {"вредно",         "запрещено",  "исключено",
                                     "не_делай",       "не_надо",    "не_нужно",
@@ -168,7 +168,7 @@ map<string, int> apply_model() {
                 r_max = r;
             }
         }
-        result[labels_list[id]] += 1;
+        if(r_max>detection_threshold) result[labels_list[id]] += 1;
     }
     return result;
 }
@@ -249,8 +249,6 @@ int main(int argc, char* argv[]) {
         Flag("clip_duration_ms", &clip_duration_ms,
              "length of recognition window"),
         Flag("clip_stride_ms", &clip_stride_ms, "how often to run recognition"),
-        Flag("detection_threshold", &detection_threshold,
-             "what score is required to trigger detection of a word"),
     };
     string usage = tensorflow::Flags::Usage(argv[0], flag_list);
     const bool parse_result = tensorflow::Flags::Parse(&argc, argv, flag_list);
