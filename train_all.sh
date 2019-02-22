@@ -7,7 +7,7 @@ data_dir=data/train
 train_dir=train
 steps=500,500,500
 rate=0.0005,0.0001,0.00002
-unknown_percentage=80
+unknown_percentage=50
 dct_coefficient_count=10
 window_size_ms=40  
 window_stride_ms=20
@@ -58,8 +58,8 @@ function train {
 }
 
 train ds_cnn "6 276 10 4 2 1 276 3 3 2 2 276 3 3 1 1 276 3 3 1 1 276 3 3 1 1 276 3 3 1 1"
-train lstm "188 500"
 train crnn "100 10 4 2 1 2 136 188"
 train gru "1 400"
-train cnn "60 10 4 1 1 76 10 4 2 1 58 128"
-train dnn "436 436 436"
+#train lstm "188 500"
+#train cnn "60 10 4 1 1 76 10 4 2 1 58 128"
+#train dnn "436 436 436"

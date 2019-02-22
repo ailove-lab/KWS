@@ -56,8 +56,8 @@ static std::vector<string> words = {
     "нельзя",
 };
 
-static std::vector<string> models = {"cnn",    "crnn", "dnn",
-                                     "ds_cnn", "gru",  "lstm"};
+static std::vector<string> models = {"crnn", "ds_cnn", "gru",};
+// static std::vector<string> models = {"gru"};
 
 namespace {
 
