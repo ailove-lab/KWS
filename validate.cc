@@ -44,10 +44,17 @@ int32 clip_duration_ms = 500;
 int32 clip_stride_ms = 20;
 int detection_threshold = 70;
 
-static std::vector<string> words = {"вредно",         "запрещено",  "исключено",
-                                    "не_делай",       "не_надо",    "не_нужно",
-                                    "не_следует",     "не_стоит",   "нельзя",
-                                    "плохая_примета", "разве_можно"};
+// static std::vector<string> words = {"вредно",         "запрещено", "исключено",
+//                                     "не_делай",       "не_надо", "не_нужно",
+//                                     "не_следует",     "не_стоит",   "нельзя",
+//                                     "плохая_примета", "разве_можно"};
+
+static std::vector<string> words = {
+    "вредно",
+    "запрещено",
+    "исключено",
+    "нельзя",
+};
 
 static std::vector<string> models = {"cnn",    "crnn", "dnn",
                                      "ds_cnn", "gru",  "lstm"};
@@ -168,14 +175,15 @@ map<string, int> apply_model() {
                 r_max = r;
             }
         }
-        if(r_max>detection_threshold) result[labels_list[id]] += 1;
+        if (r_max > detection_threshold)
+            result[labels_list[id]] += 1;
     }
     return result;
 }
 
 int run_validation() {
 
-    std::cout << "Модель\tСлово\tИП ко-во\tИП сумма\tЛП ко-во\tЛП сумма\n";
+    std::cout << "Модель\tСлово\tИП ко-во\tИП сумма\tЛН ко-во\tЛП ко-во\tЛП сумма\n";
     char buf[256];
     for (string& model : models) {
 
