@@ -1,0 +1,3 @@
+model_checkpoint_path: "gru_8846.ckpt-800"
+all_model_checkpoint_paths: "gru_8461.ckpt-400"
+all_model_checkpoint_paths: "gru_8846.ckpt-800"

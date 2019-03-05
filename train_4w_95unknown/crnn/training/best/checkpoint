@@ -1,0 +1,3 @@
+model_checkpoint_path: "crnn_9348.ckpt-800"
+all_model_checkpoint_paths: "crnn_9195.ckpt-400"
+all_model_checkpoint_paths: "crnn_9348.ckpt-800"
