@@ -40,14 +40,15 @@ string labels = "";
 string input_data_name = "decoded_sample_data:0";
 string input_rate_name = "decoded_sample_data:1";
 string output_name = "labels_softmax";
-int32 clip_duration_ms = 500;
-int32 clip_stride_ms = 20;
+int32 clip_duration_ms  = 1000;
+int32 clip_stride_ms    = 20;
 int detection_threshold = 70;
 
 // static std::vector<string> words = {"вредно",         "запрещено", "исключено",
 //                                     "не_делай",       "не_надо", "не_нужно",
 //                                     "не_следует",     "не_стоит",   "нельзя",
 //                                     "плохая_примета", "разве_можно"};
+// 
 
 static std::vector<string> words = {
     "вредно",
@@ -56,8 +57,8 @@ static std::vector<string> words = {
     "нельзя",
 };
 
-static std::vector<string> models = {"crnn", "ds_cnn", "gru",};
-// static std::vector<string> models = {"gru"};
+// static std::vector<string> models = {"crnn", "ds_cnn", "gru",};
+static std::vector<string> models = {"gru"};
 
 namespace {
 
