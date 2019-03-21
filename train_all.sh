@@ -13,6 +13,7 @@ dct_coefficient_count=20
 window_size_ms=40
 window_stride_ms=20
 clip_duration_ms=1000
+time_shift_ms=400
 clip_stride_ms=20
 sample_rate=16000
 background_volume=0.2 
@@ -51,6 +52,7 @@ function train {
     --clip_stride_ms=$clip_stride_ms                   \
     --window_size_ms=$window_size_ms                   \
     --window_stride_ms=$window_stride_ms               \
+    --time_shift_ms=$time_shift_ms                     \
     --sample_rate=$sample_rate                         \
     --learning_rate=$learning_rate                     \
     --how_many_training_steps=$how_many_training_steps \
